@@ -5,8 +5,9 @@
   "main": "./dist/react-paginator-hook.js",
   "types": "./dist/src/react-paginator-hook.d.ts",
   "scripts": {
-    "build": "webpack",
-    "dev": "webpack --watch",
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "prepublishOnly": "npm run test && npm run build",
     "test": "jest"
   },
   "keywords": [
@@ -32,6 +33,7 @@
     "@types/react": "^17.0.39",
     "babel-loader": "^8.2.3",
     "chai": "^4.3.6",
+    "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^6.7.1",
     "css-modules-typescript-loader": "^4.0.1",
     "jest": "^27.5.1",

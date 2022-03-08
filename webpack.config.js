@@ -1,4 +1,4 @@
-// const ESLintPlugin = require('eslint-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
     const devMode = argv.mode !== 'production'
@@ -65,9 +65,7 @@ module.exports = (env, argv) => {
             extensions: ['.tsx', '.ts', '.mjs', '.js', '.jsx'],
         },
         plugins: [
-            // new ESLintPlugin({
-            //     extensions: ['js', 'jsx', 'ts', 'tsx'],
-            // }),
+           new CleanWebpackPlugin()
         ]
     }
 }
