@@ -1,0 +1,47 @@
+{
+  "name": "react-paginator-hook",
+  "version": "1.0.0",
+  "description": "A simple react hook for helping in pagination",
+  "main": "./dist/react-paginator-hook.js",
+  "types": "./dist/src/react-paginator-hook.d.ts",
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack --watch",
+    "test": "jest"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "pagination",
+    "paginator",
+    "rest",
+    "api",
+    "array",
+    "typescript-pagination"
+  ],
+  "author": "Davide Cocco",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/react-hooks": "^7.0.2",
+    "@types/chai": "^4.3.0",
+    "@types/jest": "^27.4.1",
+    "@types/react": "^17.0.39",
+    "babel-loader": "^8.2.3",
+    "chai": "^4.3.6",
+    "css-loader": "^6.7.1",
+    "css-modules-typescript-loader": "^4.0.1",
+    "jest": "^27.5.1",
+    "sass-loader": "^12.6.0",
+    "style-loader": "^3.3.1",
+    "ts-jest": "^27.1.3",
+    "ts-loader": "^9.2.7",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2",
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2"
+  }
+}
