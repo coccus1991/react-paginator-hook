@@ -1,79 +1,142 @@
 import React, {useState, useEffect, useMemo, useCallback} from "react";
 
+interface IUsePaginatorState {
+    currentPage: number,
+    itemPerPage: number,
+    totalItems: number,
+    totalPages: number,
+    paginatedArray: Array<any> | null
+}
+
+const calcTotalPages = (totalItems: number, perPage: number) => Math.ceil(totalItems / perPage) || 1;
+
+const paginateArrayHelper = function <T>(array: T[], page_size: number, page_number: number): T[] {
+    return array.slice((page_number - 1) * page_size, page_number * page_size);
+}
+
 const usePaginator = (totalItems = 0, itemPerPage = 10, currentPage = 1) => {
-    const [query, setQuery] = useState<{currentPage: number, itemPerPage: number, totalItems: number}>({currentPage: currentPage, itemPerPage: itemPerPage, totalItems: totalItems});
-    const [paginatorRange, setPaginatorRange] = useState<number[]>([])
-    const calcTotalPages = (totalItems: number, perPage: number) => Math.ceil(totalItems / perPage);
+    /**
+     * Initial state
+     */
+    const [paginatorState, setPaginatorState] = useState<IUsePaginatorState>({
+        currentPage: currentPage,
+        itemPerPage: itemPerPage,
+        totalItems: totalItems,
+        totalPages: calcTotalPages(totalItems, itemPerPage),
+        paginatedArray: null
+    });
 
-    const totalPages = useMemo(() => calcTotalPages(query.totalItems, query.itemPerPage), [query.totalItems, query.itemPerPage]);
+    const setPaginatedArray: <T>(arr: T[]) => void = useCallback(function <T>(arr: T[]) {
+        setPaginatorState(q => {
+            return {
+                ...q,
+                currentPage: 1,
+                paginatedArray: arr,
+                totalItems: arr.length,
+                totalPages: calcTotalPages(arr.length, itemPerPage)
+            }
+        });
+    }, [])
 
-    useEffect(() => {
-        let range: number[] = [];
+    /**
+     * Go to next page
+     */
+    const goNextPage: () => void = useCallback(() => setPaginatorState(q => {
+        return (q.currentPage >= q.totalPages) ? q : {...q, currentPage: (q.currentPage + 1)};
+    }), []);
 
-        for (let i = query.currentPage; i < (query.currentPage + 10); i++) {
-            range.push(i);
-        }
-
-        setPaginatorRange(range)
-    }, [query.currentPage])
-
-    const goNextPage: () => void = useCallback(() => setQuery(q => {
-        return (q.currentPage >= totalPages) ? q : {...q, currentPage: (q.currentPage + 1)};
-    }), [totalPages]);
-
-    const goPreviousPage = useCallback(() => setQuery(q => {
+    /**
+     * Go to previous page
+     */
+    const goPreviousPage: () => void = useCallback(() => setPaginatorState(q => {
         return (q.currentPage <= 1) ? q : {...q, currentPage: (q.currentPage - 1)};
     }), []);
 
-    const goLastPage: () => void = useCallback(() => setQuery(q => ({...q, currentPage: totalPages})), [totalPages]);
+    /**
+     * Go to last page
+     */
+    const goLastPage: () => void = useCallback(() => setPaginatorState(q => ({...q, currentPage: q.totalPages})), []);
 
-    const goFirstPage: () => void = useCallback(() => setQuery(q => ({...q, currentPage: 1})), []);
+    /**
+     * Jump to first page
+     */
+    const goFirstPage: () => void = useCallback(() => setPaginatorState(q => ({...q, currentPage: 1})), []);
 
     /**
      * Jump to specified page
      */
     const goPage: (page: number) => void = useCallback((page: number) => {
-        if (page > 0 && page <= totalPages)
-            setQuery(q => ({...q, currentPage: page}))
-    }, [totalPages]);
-
-
+        setPaginatorState(q => (page > 0 && page <= q.totalPages) ? ({...q, currentPage: page}) : q)
+    }, []);
 
     /**
      * Change item showed per page
      */
     const changeItemPerPage: (perPage: number, startFromFirstPage?: boolean) => void = useCallback((perPage: number, startFromFirstPage = false) => {
-        setQuery(q => {
+        setPaginatorState(q => {
+            if (perPage === q.itemPerPage || perPage > q.totalItems) return q;
+
             const newTotalPages = calcTotalPages(q.totalItems, perPage);
-            let newQuery = {currentPage: q.currentPage, itemPerPage: perPage};
 
-            if (startFromFirstPage)
-                newQuery.currentPage = 1;
-            else if (newTotalPages < newQuery.currentPage)
-                newQuery.currentPage = newTotalPages;
+            let newPaginatorState = {currentPage: q.currentPage, itemPerPage: perPage, totalPages: newTotalPages};
 
-            return {...q, ...newQuery}
+            if (startFromFirstPage) {
+                newPaginatorState.currentPage = 1;
+            } else if (newTotalPages < newPaginatorState.currentPage)
+                newPaginatorState.currentPage = newTotalPages;
+
+            return {...q, ...newPaginatorState}
         });
     }, [])
 
     /**
      * Change total items to paginate
      */
-    const changeTotalItems: (totalItems: number) => void = useCallback((totalItems: number) => setQuery(q => ({...q, totalItems})), []);
+    const changeTotalItems: (totalItems: number) => void = useCallback((totalItems: number) => setPaginatorState(q => {
+        const newTotalPages = calcTotalPages(totalItems, q.itemPerPage);
+
+        return {
+            ...q,
+            totalPages: newTotalPages,
+            currentPage: ((q.currentPage > newTotalPages) ? newTotalPages : q.currentPage),
+            totalItems
+        }
+    }), []);
+
+    const paginatorRange: (span: number) => number[] = useCallback((span: number) => {
+        let start = ((paginatorState.currentPage - 2) < 1) ? 1 : (paginatorState.currentPage - 2)
+
+        let middle = [...Array(span)].map<number>((x, i) => (start + i)).filter((x, i) => x <= paginatorState.totalPages);
+
+        if (span > middle.length) {
+            const middleLength = middle.length;
+
+            for (let i = 0; i < (span - middleLength); i++) {
+                if (middle[0] < 2)
+                    break
+
+                middle = [(middle[0] - 1), ...middle];
+            }
+        }
+
+        return middle;
+    }, [paginatorState.currentPage, paginatorState.totalPages]);
 
     return {
-        totalPages: totalPages,
-        paginatorRange,
-        totalItems: query.totalItems,
-        currentPage: query.currentPage,
-        itemPerPage: query.itemPerPage,
+        totalPages: paginatorState.totalPages,
+        totalItems: paginatorState.totalItems,
+        currentPage: paginatorState.currentPage,
+        itemPerPage: paginatorState.itemPerPage,
+        paginatedArray: ((Array.isArray(paginatorState.paginatedArray)) ? paginateArrayHelper(paginatorState.paginatedArray, paginatorState.itemPerPage, paginatorState.currentPage) : null),
+        setPaginatedArray,
         changeItemPerPage,
         changeTotalItems,
         goPage,
         goLastPage,
         goFirstPage,
         goNextPage,
-        goPreviousPage
+        goPreviousPage,
+        paginatorRange,
     };
 };
 

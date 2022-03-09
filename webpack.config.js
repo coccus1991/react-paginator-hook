@@ -7,7 +7,7 @@ module.exports = (env, argv) => {
         target: "node",
         entry: './src/react-paginator-hook.tsx',
         output: {
-            path: __dirname + '/dist',
+            path: __dirname + '/dist/src',
             libraryTarget: "commonjs2",
             filename: 'react-paginator-hook.js',
         },

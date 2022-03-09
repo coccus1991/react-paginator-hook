@@ -1,5 +1,5 @@
 ## Description
-A simple react use which simplify the pagination status.
+A simple react use which simplify the pagination handling.
 
 ## Examples
 ### With http api
@@ -117,6 +117,135 @@ const App = () => {
     );
 }
 
+
+export default App;
+```
+### with array
+```tsx
+import React, {useState, useEffect} from "react";
+
+import usePaginator from "react-paginator-hook";
+
+export interface IPokemonListItem {
+    name: string;
+    url: string;
+}
+
+const pokemon = [
+    {
+        "name": "bulbasaur",
+        "url": "https://pokeapi.co/api/v2/pokemon/1/"
+    },
+    {
+        "name": "ivysaur",
+        "url": "https://pokeapi.co/api/v2/pokemon/2/"
+    },
+    {
+        "name": "venusaur",
+        "url": "https://pokeapi.co/api/v2/pokemon/3/"
+    },
+    {
+        "name": "charmander",
+        "url": "https://pokeapi.co/api/v2/pokemon/4/"
+    },
+    {
+        "name": "charmeleon",
+        "url": "https://pokeapi.co/api/v2/pokemon/5/"
+    },
+    {
+        "name": "charizard",
+        "url": "https://pokeapi.co/api/v2/pokemon/6/"
+    },
+    {
+        "name": "squirtle",
+        "url": "https://pokeapi.co/api/v2/pokemon/7/"
+    },
+    {
+        "name": "wartortle",
+        "url": "https://pokeapi.co/api/v2/pokemon/8/"
+    },
+    {
+        "name": "blastoise",
+        "url": "https://pokeapi.co/api/v2/pokemon/9/"
+    },
+    {
+        "name": "caterpie",
+        "url": "https://pokeapi.co/api/v2/pokemon/10/"
+    }
+
+]
+
+const App = () => {
+    const {
+        goNextPage,
+        goPreviousPage,
+        goLastPage,
+        goFirstPage,
+        currentPage,
+        itemPerPage,
+        totalPages,
+        totalItems,
+        paginatorRange,
+        changeItemPerPage,
+        goPage,
+        setPaginatedArray,
+        paginatedArray
+    } = usePaginator(0, 2);
+
+    useEffect(() => {
+        setPaginatedArray(pokemon)
+    }, [])
+
+    const liStyle = {display: "inline-block", marginRight: 10, cursor: "pointer"};
+
+    return (
+        <div>
+            <p>Page: {currentPage}</p>
+            <p>Items Per Page: {itemPerPage}</p>
+            <p>Total Pokemon: {totalItems}</p>
+            <p>Total Pages: {totalPages}</p>
+            <h4>Per Page</h4>
+            <p>
+                <button onClick={() => changeItemPerPage(2, true)}>2</button>
+                <button onClick={() => changeItemPerPage(5, true)}>5</button>
+            </p>
+            <p>
+                <button onClick={goFirstPage}>Go First Page</button>
+                <button onClick={goPreviousPage}>Previous Page</button>
+                <button onClick={goNextPage}>Next Page</button>
+                <button onClick={goLastPage}>Go Last Page</button>
+            </p>
+            <ul>
+                {
+                     paginatedArray?.map((item: IPokemonListItem, i: number) => {
+                        return (
+                            <div key={i}>
+                                <li>
+                                    <a href={item.url}>{item.name}</a>
+                                </li>
+                            </div>
+                        )
+                    })
+                }
+            </ul>
+
+            <ul>
+                <li style={liStyle}
+                    onClick={goFirstPage}> First Page
+                </li>
+                {
+                    paginatorRange(5).map((x: number, i: number) =>
+                        <li key={i} style={liStyle}
+                            onClick={() => goPage(x)}>{x}</li>
+                    )
+                }
+                <li style={liStyle}
+                    onClick={goLastPage}> Last Page
+                </li>
+            </ul>
+        </div>
+    );
+};
 
 export default App;
 ```
