@@ -89,22 +89,24 @@ describe("Testing react-paginator-hook", function () {
 
         const hookResult = () => result.current as ReturnType<typeof usePaginator>;
 
-        for (let i = 0; i < 5; i++) {
-            expect(hookResult().paginatorRange(5)).to.be.eql([(i + 1), (i + 2), (i + 3), (i + 4), (i + 5)])
 
-            act(() => hookResult().goNextPage());
-        }
+        expect(hookResult().paginatorRange(5)).to.be.eql([1, 2, 3, 4, 5]);
 
+        act(() => hookResult().goNextPage());
 
-        for (let i = 0; i < 5; i++) {
-            expect(hookResult().paginatorRange(5)).to.be.eql([(6 - i), (7 - i), (8 - i), (9 - i), (10 - i)]);
-            act(() => hookResult().goPreviousPage());
-        }
+        expect(hookResult().paginatorRange(5)).to.be.eql([1, 2, 3, 4, 5]);
 
-        act(() => hookResult().goPage(7));
-        expect(hookResult().paginatorRange(5)).to.be.eql([7, 8, 9, 10, 11]);
+        act(() => hookResult().goNextPage());
 
-        act(() => hookResult().changeTotalItems(1));
-        expect(hookResult().paginatorRange(5)).to.be.eql([1]);
+        expect(hookResult().paginatorRange(5)).to.be.eql([1, 2, 3, 4, 5]);
+
+        act(() => hookResult().goNextPage());
+
+        expect(hookResult().paginatorRange(5)).to.be.eql([2, 3, 4, 5, 6]);
+
+        act(() => hookResult().goLastPage());
+
+        expect(hookResult().paginatorRange(5)).to.be.eql([16, 17, 18, 19, 20]);
+
     })
 })
