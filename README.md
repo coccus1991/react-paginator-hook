@@ -1,6 +1,9 @@
 ## Description
 A simple react use which simplify the pagination handling.
 
+## install
+`npm i --save react-paginator-hook`
+
 ## Examples
 ### With http api
 ```tsx

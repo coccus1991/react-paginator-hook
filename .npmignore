@@ -3,6 +3,5 @@ node_modules
 .vscode
 .gitignore
 jest.config.ts
-webpack.config.js
-src
-coverage
+coverage/
+src/
