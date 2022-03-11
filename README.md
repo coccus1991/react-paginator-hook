@@ -7,7 +7,7 @@ A simple react use which simplify the pagination handling.
 ## Examples
 ### With http api
 ```tsx
-import React, {useState, useEffect, useMemo, useCallback, useRef} from "react";
+import React, {useState, useEffect} from "react";
 
 import usePaginator from "react-paginator-hook";
 
@@ -40,12 +40,15 @@ const useFetch = function <T>(defaultValue: T | null) {
     }, [requestUrl])
 
     return {data, setRequestUrl, isLoading}
-}
-
+};
 
 
 const App = () => {
-    const {data, setRequestUrl, isLoading} = useFetch<IPokemonList>(null);
+    const {
+        data,
+        setRequestUrl,
+        isLoading
+    } = useFetch<IPokemonList>(null);
 
     const {
         goNextPage,
@@ -60,18 +63,17 @@ const App = () => {
         changeItemPerPage,
         changeTotalItems,
         goPage,
-    } = usePaginator()
+    } = usePaginator();
 
     useEffect(() => {
-        changeTotalItems((data?.count || 0))
+        changeTotalItems((data?.count || 0));
     }, [data?.count])
 
     useEffect(() => {
-        const baseUrl = `https://pokeapi.co/api/v2/pokemon`;
-
-        setRequestUrl(`${baseUrl}?limit=${itemPerPage}&offset=${((currentPage - 1) * itemPerPage)}`);
+        setRequestUrl(`https://pokeapi.co/api/v2/pokemon?limit=${itemPerPage}&offset=${((currentPage - 1) * itemPerPage)}`);
     }, [currentPage, itemPerPage])
 
+    const liStyle = {display: "inline-block", marginRight: 10, cursor: "pointer"};
 
     return (
         <div>
@@ -105,20 +107,23 @@ const App = () => {
             </ul>
 
             <ul>
-                <li style={{display: "inline-block", marginRight: 10, cursor: "pointer"}}
-                    onClick={() => goPage(1)}> First Page
+                <li style={liStyle}
+                    onClick={goFirstPage}> First Page
                 </li>
-                {paginatorRange.map((x: number, i: number) =>
-                    <li key={i} style={{display: "inline-block", marginRight: 10, cursor: "pointer"}}
-                        onClick={() => goPage(x)}>{x}</li>
-                )}
-                <li style={{display: "inline-block", marginRight: 10, cursor: "pointer"}}
-                    onClick={() => goPage(totalPages)}> Last Page
+                {
+                    paginatorRange(5).map((x: number, i: number) =>
+                        <li key={i} style={liStyle}
+                            onClick={() => goPage(x)}>{x}</li>
+                    )
+                }
+                <li style={liStyle}
+                    onClick={goLastPage}> Last Page
                 </li>
             </ul>
         </div>
     );
-}
+};
+
 
 
 export default App;
