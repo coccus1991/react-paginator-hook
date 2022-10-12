@@ -29,30 +29,59 @@ const usePaginator = ({
                       }: UsePaginatorProperties = {}) => {
     const isFirstRender = useRef(true);
 
-    const getInitialState = () => {
+    const previousProps = useRef({
+        totalItems,
+        itemPerPage,
+        currentPage,
+        paginatedArray
+    });
+
+    const onChangeProps = () => {
         const newTotalItems = paginatorState?.paginatedArray?.length || totalItems;
-        const totalPages = calcTotalPages(newTotalItems, itemPerPage);
+        const newItemPerPage = (itemPerPage !== previousProps.current.itemPerPage) ? itemPerPage : paginatorState.itemPerPage;
+        const newTotalPages = calcTotalPages(newTotalItems, newItemPerPage);
+        const newPaginatedArray = (paginatedArray !== previousProps.current.paginatedArray) ? paginatedArray : paginatorState.paginatedArray;
+        let newCurrentPage = (currentPage !== previousProps.current.currentPage) ? currentPage : paginatorState.currentPage;
+
+        newCurrentPage = newCurrentPage <= newTotalPages ? newCurrentPage : newTotalPages;
 
         return {
-            currentPage: currentPage <= totalPages ? currentPage : totalPages,
-            itemPerPage: itemPerPage,
+            currentPage: newCurrentPage,
+            itemPerPage: newItemPerPage,
             totalItems: newTotalItems,
-            totalPages: totalPages,
-            paginatedArray: paginatorState?.paginatedArray || null
+            totalPages: newTotalPages,
+            paginatedArray: newPaginatedArray
         };
     };
 
     /**
      * Initial state
      */
-    const [paginatorState, setPaginatorState] = useState<IUsePaginatorState>(getInitialState());
+    const [paginatorState, setPaginatorState] = useState<IUsePaginatorState>((() => {
+        const totalPages = calcTotalPages(totalItems, itemPerPage);
+
+        return {
+            currentPage: currentPage <= totalPages ? currentPage : totalPages,
+            itemPerPage: itemPerPage,
+            totalItems: totalItems,
+            totalPages: totalPages,
+            paginatedArray: paginatedArray
+        }
+    })());
 
     /**
      * Handling side effects
      */
     useEffect(() => {
         if (!isFirstRender.current) {
-            setPaginatorState(getInitialState());
+            setPaginatorState(onChangeProps());
+
+            previousProps.current = {
+                totalItems,
+                itemPerPage,
+                currentPage,
+                paginatedArray
+            };
         }
 
         isFirstRender.current = false;

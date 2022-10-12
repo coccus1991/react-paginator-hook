@@ -23,7 +23,7 @@ describe("Testing react-paginator-hook", function () {
         expect(hookResult().itemPerPage).to.be.eq(10);
     });
 
-    it('Check side effect', function () {
+    it('Check side effect props', function () {
         let props = {totalItems: 100, itemPerPage: 10, currentPage: 1};
 
         let hook = renderHookWithCount(() => usePaginator(props));
@@ -53,8 +53,41 @@ describe("Testing react-paginator-hook", function () {
         props.itemPerPage = 2;
         hook.rerender();
 
+        expect(hookResult().renderCount).to.be.eq(7);
         expect(hookResult().totalPages).to.be.eq(1);
         expect(hookResult().totalItems).to.be.eq(2);
+        expect(hookResult().totalPages).to.be.eq(1);
+    });
+
+    it('Check mixed side effect props and change state methods', function () {
+        let props = {totalItems: 100, itemPerPage: 10, currentPage: 1};
+
+        let hook = renderHookWithCount(() => usePaginator(props));
+
+        let hookResult = () => hook.result.current;
+
+        expect(hookResult().currentPage).to.be.eq(1);
+        expect(hookResult().renderCount).to.be.eq(1);
+        expect(hookResult().totalPages).to.be.eq(10);
+
+        act(() => hookResult().changeItemPerPage(20));
+
+        props.currentPage = 2;
+        hook.rerender();
+
+        expect(hookResult().renderCount).to.be.eq(4);
+        expect(hookResult().currentPage).to.be.eq(2);
+        expect(hookResult().itemPerPage).to.be.eq(20);
+        expect(hookResult().totalPages).to.be.eq(5);
+
+        act(() => hookResult().changeItemPerPage(100));
+
+        props.currentPage = 3;
+        hook.rerender();
+
+        expect(hookResult().renderCount).to.be.eq(7);
+        expect(hookResult().currentPage).to.be.eq(1);
+        expect(hookResult().itemPerPage).to.be.eq(100);
         expect(hookResult().totalPages).to.be.eq(1);
     });
 
