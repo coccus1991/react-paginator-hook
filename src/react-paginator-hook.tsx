@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useMemo, useCallback} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 
 interface IUsePaginatorState {
-    currentPage: number,
-    itemPerPage: number,
-    totalItems: number,
-    totalPages: number,
-    paginatedArray: Array<any> | null
+    currentPage: number;
+    itemPerPage: number;
+    totalItems: number;
+    totalPages: number;
+    paginatedArray: Array<any> | null;
 }
 
 const calcTotalPages = (totalItems: number, perPage: number) => Math.ceil(totalItems / perPage) || 1;
@@ -14,17 +14,49 @@ const paginateArrayHelper = function <T>(array: T[], page_size: number, page_num
     return array.slice((page_number - 1) * page_size, page_number * page_size);
 }
 
-const usePaginator = (totalItems = 0, itemPerPage = 10, currentPage = 1) => {
+interface UsePaginatorProperties {
+    currentPage?: number;
+    itemPerPage?: number;
+    totalItems?: number;
+    paginatedArray?: Array<any> | null;
+}
+
+const usePaginator = ({
+                          totalItems = 0,
+                          itemPerPage = 10,
+                          currentPage = 1,
+                          paginatedArray = null
+                      }: UsePaginatorProperties = {}) => {
+    const isFirstRender = useRef(true);
+
+    const getInitialState = () => {
+        const newTotalItems = paginatorState?.paginatedArray?.length || totalItems;
+        const totalPages = calcTotalPages(newTotalItems, itemPerPage);
+
+        return {
+            currentPage: currentPage <= totalPages ? currentPage : totalPages,
+            itemPerPage: itemPerPage,
+            totalItems: newTotalItems,
+            totalPages: totalPages,
+            paginatedArray: paginatorState?.paginatedArray || null
+        };
+    };
+
     /**
      * Initial state
      */
-    const [paginatorState, setPaginatorState] = useState<IUsePaginatorState>({
-        currentPage: currentPage,
-        itemPerPage: itemPerPage,
-        totalItems: totalItems,
-        totalPages: calcTotalPages(totalItems, itemPerPage),
-        paginatedArray: null
-    });
+    const [paginatorState, setPaginatorState] = useState<IUsePaginatorState>(getInitialState());
+
+    /**
+     * Handling side effects
+     */
+    useEffect(() => {
+        if (!isFirstRender.current) {
+            setPaginatorState(getInitialState());
+        }
+
+        isFirstRender.current = false;
+    }, [totalItems, itemPerPage, currentPage, paginatedArray])
 
     const setPaginatedArray: <T>(arr: T[]) => void = useCallback(function <T>(arr: T[]) {
         setPaginatorState(q => {
@@ -36,7 +68,7 @@ const usePaginator = (totalItems = 0, itemPerPage = 10, currentPage = 1) => {
                 totalPages: calcTotalPages(arr.length, itemPerPage)
             }
         });
-    }, [])
+    }, []);
 
     /**
      * Go to next page
