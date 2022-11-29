@@ -1,10 +1,10 @@
 import {expect} from "chai";
-import {act, renderHook} from "@testing-library/react-hooks";
+import {act, renderHook} from "@testing-library/react";
 import usePaginator from "./react-paginator-hook";
 import {useRef} from "react";
 
 const renderHookWithCount = function <T>(hook: () => T) {
-    return renderHook<unknown, T & { renderCount: number }>(() => {
+    return renderHook(() => {
         const countRef = useRef(0)
         countRef.current++
         return {renderCount: countRef.current, ...hook()}
@@ -127,7 +127,7 @@ describe("Testing react-paginator-hook", function () {
         //case not existing page, the page has not to change
         act(() => hookResult().goPage(21));
 
-        expect(hookResult().renderCount).to.be.eq(7);
+        expect(hookResult().renderCount).to.be.eq(6);
         expect(hookResult().currentPage).to.be.eq(1)
 
 
